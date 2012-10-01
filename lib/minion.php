@@ -31,58 +31,26 @@ class Minion {
         while (true) {
             $this->trigger('loop-start');
 
-            $this->trigger('before-read');
             $data = $this->socket->read();
             $this->trigger('after-read', $data);
 
-            try {
-                $parsed = $this->parse($data);
-            } catch (UnexpectedValueException $e) {
+            if (preg_match('^(?:[:@]([^\\s]+) )?([^\\s]+)(?: ((?:[^:\\s][^\\s]* ?)*))?(?: ?:(.*))?$', $data, $matches)) {
+                $parsed = array(
+                    'source' => $matches[0],
+                    'command' => $matches[1],
+                    'target' => $matches[2],
+                    'params' => $matches[3]
+                );
+                log("[Source: {$parsed['source']}] [Command: {$parsed['command']}] [Target: {$parsed['target']}] [Params: {$parsed['params']}]", 'INFO');
+                $this->trigger('parsed', $parsed);
+                $this->trigger($parsed['command'], $parsed);
+            } else {
+                $this->trigger('parse-failed', $data);
                 log("Failed to parse data: $data");
-                continue;
-            }
-
-            $response = $this->respond($parsed);
-
-            if (!empty($response)) {
-                $this->trigger('before-write', $response);
-                $this->socket->write($response);
-                $this->trigger('after-write', $response);
             }
 
             $this->trigger('loop-end');
         }
-    }
-
-    private function parse ($data) {
-        $this->trigger('before-parse', $data);
-        $parsed = array();
-        if (preg_match('^(?:[:@]([^\\s]+) )?([^\\s]+)(?: ((?:[^:\\s][^\\s]* ?)*))?(?: ?:(.*))?$', $data, $matches)) {
-            $parsed = array(
-                'source' => $matches[0],
-                'command' => $matches[1],
-                'target' => $matches[2],
-                'params' => $matches[3]
-            );
-            log("[Source: {$parsed['source']}] [Command: {$parsed['command']}] [Target: {$parsed['target']}] [Params: {$parsed['params']}]", 'INFO');
-            $this->trigger('parsed', $parsed);
-        } else {
-            $this->trigger('parse-failed', $data);
-            throw new UnexpectedValueException("Failed to parse data: $data");
-        }
-        $this->trigger('after-parse', $parsed);
-        return $parsed;
-    }
-
-    private function respond ($data) {
-        $this->trigger('before-respond', $data);
-        $this->trigger($data['command'], $data);
-        $response = '';
-        if (isset($data['response'])) {
-            $response = $data['response'];
-        }
-        $this->trigger('after-respond', $response);
-        return $response;
     }
 
     private function trigger ($event, &$data) {
@@ -91,6 +59,16 @@ class Minion {
                 $plugin->on[$event]($this, &$data);
             }
         }
+    }
+
+    public function send ($message) {
+        $this->trigger('before-respond', $message);
+        $this->socket->write($message);
+        $this->trigger('after-response', $message);
+    }
+
+    public function msg ($message, $target) {
+        $this->send("PRIVMSG $target :$message");
     }
 
     public function __destruct () {
