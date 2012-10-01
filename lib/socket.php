@@ -17,11 +17,14 @@ class Socket {
     }
 
     public function connect () {
-        $this->socket = fsockopen($this->host, $this->port);
-        if (!$this->connected) {
-            throw new RuntimeException("Couldn't connect to {$this->host}:{$this->port}");
+        if (!$this->connected()) {
+            $this->socket = fsockopen($this->host, $this->port);
+            if (!$this->connected()) {
+                throw new RuntimeException("Couldn't connect to {$this->host}:{$this->port}");
+            }
+            return $this;
         }
-        return $this;
+        return false;
     }
 
     private function connected () {
@@ -38,7 +41,10 @@ class Socket {
         return true;
     }
 
-    public function read ($data) {
+    public function read () {
+        if (!$this->connected()) {
+            $this->connect();
+        }
         return fgets($this->socket, 512);
     }
 
