@@ -72,7 +72,7 @@ class Minion {
     private function trigger ($event, &$data = null) {
         if (isset($this->triggers[$event])) {
             foreach ($this->triggers[$event] as $pluginName => $trigger) {
-                $this->log("Triggering $pluginName trigger for $event.");
+                $this->log("Triggering $pluginName:$event.");
                 $trigger($this, &$data);
             }
         }
@@ -81,6 +81,7 @@ class Minion {
     public function send ($message) {
         $this->trigger('before-send', $message);
         $this->socket->write($message);
+        $this->log("Sent: $message");
         $this->trigger('after-send', $message);
     }
 
@@ -98,8 +99,8 @@ class Minion {
         $message = null;
         $arguments = array();
 
-        if ($data) {
-            if (strpos(' :', $data) !== false) {
+        if ($data = trim($data)) {
+            if (strpos($data, ' :') !== false) {
                 list ($data, $message) = explode(' :', $data, 2);
             }
 
