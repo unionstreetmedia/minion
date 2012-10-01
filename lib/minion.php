@@ -15,12 +15,20 @@ class Minion {
     private $log;
     private $socket;
     private $plugins = array();
+    private $triggers = array();
 
     public function __construct () {
         $this->config = new Config();
 
         foreach (glob("{$this->config->PluginDirectory}/*.php") as $pluginFile) {
-            array_push($this->plugins, include($pluginFile));
+            $plugin = include($pluginFile);
+            array_push($this->plugins, $plugin);
+            foreach ($plugin->On as $trigger) {
+                if (!is_array($triggers[$trigger])) {
+                    $triggers[$trigger] = array();
+                }
+                $triggers[$trigger][$plugin->Name] =& $plugin->On[$trigger];
+            }
         }
     }
 
@@ -54,9 +62,9 @@ class Minion {
     }
 
     private function trigger ($event, &$data) {
-        foreach ($this->plugins as $plugin) {
-            if (isset($plugin->on[$event]) and is_callable($plugin->on[$event])) {
-                $plugin->on[$event]($this, &$data);
+        if (isset($this->triggers[$event])) {
+            foreach ($this->triggers[$event] as $pluginName => $trigger) {
+                $trigger($this, &$data);
             }
         }
     }
