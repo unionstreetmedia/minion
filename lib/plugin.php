@@ -5,14 +5,18 @@ class Plugin {
     public $Name;
     public $Description;
     public $Author;
-    public $On;
+    public $On = array();
     public $Config;
 
-    public function __construct ($name, $description, $author, $on) {
+    public function __construct ($name, $description, $author) {
         $this->Name = $name;
         $this->Description = $description;
         $this->Author = $author;
-        $this->On = $on;
+    }
+
+    public function on ($event, $callable) {
+        $this->On[$event] = $callable;
+        return $this;
     }
 
     public function configure (Array $configuration) {
