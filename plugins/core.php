@@ -1,16 +1,20 @@
 <?php
 
 return new Plugin(
+    'Core',
+    'Minion core functionality.',
+    'Ryan N. Freebern / ryan@freebern.org',
+
     array(
         'connect' => function (&$minion, &$data) {
-            if (isset($minion->config->PluginConfig['Core']['Password']) and !empty($minion->config->PluginConfig['Core']['Password'])) {
-                $data['response'] = "PASS {$minion->config->PluginConfig['Core']['Password']}\r\n";
+            if ($this->conf('Password')) {
+                $minion->send("PASS {$this->conf('Password')}");
             }
-            $data['response'] .= "USER {$minion->config->PluginConfig['Core']['Nick']} hostname {$minion->config->PluginConfig['Core']['RealName']}\r\n";
-            $data['response'] .= "NICK {$minion->config->PluginConfig['Core']['Nick']}";
+            $minion->send("USER {$this->conf('Nick')} hostname {$this->conf('RealName')}");
+            $minion->Send("NICK {$this->conf('Nick')}");
         },
         'PING' => function (&$minion, &$data) {
-            $data['response'] = 'PONG';
+            $minion->send("PONG {$data['target']}");
         }
     )
 );
