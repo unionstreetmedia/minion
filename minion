@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+
+require('lib/minion.php');
+
+$minion = new Minion();
+$minion->run();
+
+?>
