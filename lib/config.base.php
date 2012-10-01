@@ -19,9 +19,9 @@ class ConfigBase {
             'Nick' => 'MinionPHP',
             
             // Connection
-            'Password' => '',
-
-            // Channels
+            'Password' => ''
+        ),
+        'Channel' => array(
             'AutoJoin' => array('#minion.php')
         )
     );

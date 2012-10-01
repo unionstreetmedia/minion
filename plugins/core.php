@@ -20,6 +20,7 @@ return $Core
     $minion->send("PONG {$data['message']}");
 })
 
+// ERR_NICKNAMEINUSE
 ->on('433', function (&$minion, &$data) {
     $nick = $Core->conf('Nick') . (string) rand(1,999);
     $minion->send("NICK {$nick}");
