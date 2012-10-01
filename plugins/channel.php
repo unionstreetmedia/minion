@@ -20,7 +20,8 @@ return $Channel
         list ($command, $channel) = explode(' ', $data['message']);
         $minion->send("JOIN $channel");
     } elseif (strpos($data['message'], '!part') === 0) {
-        $minion->send("PART {$data['arguments'][0]} Dismissed by {$data['source']}");
+        list($nickname, $ident) = explode('!', $data['source'], 2);
+        $minion->send("PART {$data['arguments'][0]} Dismissed by $nickname.");
     }
 });
 
