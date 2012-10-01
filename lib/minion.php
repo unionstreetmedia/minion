@@ -21,8 +21,16 @@ class Minion {
         $this->config = new Config();
 
         foreach (glob("{$this->config->PluginDirectory}/*.php") as $pluginFile) {
+            // Instantiate plugin.
             $plugin = include($pluginFile);
+            
+            // Configure plugin.
+            if (isset($this->config[$plugin->Name])) {
+                $plugin->configure($this->config[$plugin->Name]);
+            }
             array_push($this->plugins, $plugin);
+            
+            // Capture plugin's triggers locally so that we can access them quickly.
             foreach ($plugin->On as $trigger) {
                 if (!is_array($triggers[$trigger])) {
                     $triggers[$trigger] = array();
@@ -61,7 +69,7 @@ class Minion {
         }
     }
 
-    private function trigger ($event, &$data) {
+    private function trigger ($event, &$data = null) {
         if (isset($this->triggers[$event])) {
             foreach ($this->triggers[$event] as $pluginName => $trigger) {
                 $trigger($this, &$data);
