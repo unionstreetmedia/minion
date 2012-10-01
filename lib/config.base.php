@@ -7,7 +7,7 @@ class ConfigBase {
     public $Port = 6667;
 
     // Maintenance
-    public $BotLogFile = './minion.log';
+    public $MinionLogFile = './minion.log';
     public $Debug = false;
 
     // Plugins
@@ -16,13 +16,13 @@ class ConfigBase {
         'Core' => array(
             // Identity
             'RealName' => 'Minion Bot',
-            'Nick' => 'Minion',
+            'Nick' => 'MinionPHP',
             
             // Connection
             'Password' => '',
 
             // Channels
-            'AutoJoin' => array('#Minion')
+            'AutoJoin' => array('#minion.php')
         )
     );
 
