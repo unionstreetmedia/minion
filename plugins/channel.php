@@ -15,13 +15,23 @@ return $Channel
     }
 })
 
-->on('PRIVMSG', function (&$minion, &$data) {
-    if (strpos($data['message'], '!join') === 0) {
-        list ($command, $channel) = explode(' ', $data['message']);
-        $minion->send("JOIN $channel");
-    } elseif (strpos($data['message'], '!part') === 0) {
-        list($nickname, $ident) = explode('!', $data['source'], 2);
-        $minion->send("PART {$data['arguments'][0]} Dismissed by $nickname.");
+->on('PRIVMSG', function (&$minion, &$data) use ($Channel) {
+    list ($command, $arguments) = $Channel->simpleCommand($data);
+    switch ($command) {
+        case 'join':
+            if (count($arguments)) {
+                $minion->send("JOIN $arguments[0]");
+            }
+            break;
+        case 'part':
+            list($nickname, $ident) = explode('!', $data['source'], 2);
+            if (count($arguments)) {
+                $channel = $arguments[0];
+            } else {
+                $channel = $data['arguments'][0];
+            }
+            $minion->send("PART $channel Dismissed by $nickname.");
+            break;
     }
 });
 

@@ -51,6 +51,15 @@ class Plugin {
         }
     }
 
+    public function simpleCommand ($data) {
+        $words = explode(' ', $data['message']);
+        $command = array_shift($words);
+        if ($command[0] == '!') {
+            $command = ltrim($command, '!');
+            return array($command, $words);
+        }
+        return false;
+    }
 }
 
 ?>
