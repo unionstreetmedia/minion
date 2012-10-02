@@ -7,6 +7,7 @@ class Plugin {
     public $Author;
     public $On = array();
     public $Config;
+    protected $Nickname;
 
     public function __construct ($name, $description, $author) {
         $this->Name = $name;
@@ -51,12 +52,28 @@ class Plugin {
         }
     }
 
+    public function updateNickname ($nickname) {
+        $this->Nickname = $nickname;
+    }
+
     public function simpleCommand ($data) {
         $words = explode(' ', $data['message']);
         $command = array_shift($words);
+        
+        if ($command == $this->Nickname . ':') {
+            $command = array_shift($words);
+        }
+
         if ($command[0] == '!') {
             $command = ltrim($command, '!');
             return array($command, $words);
+        }
+        return false;
+    }
+
+    public function matchCommand ($data, $regexp) {
+        if (preg_match($regexp, $data['message'], $matches)) {
+            return $matches;
         }
         return false;
     }
