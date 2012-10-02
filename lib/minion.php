@@ -1,14 +1,7 @@
 <?php
 
-require('lib/config.base.php');
 require('lib/socket.php');
 require('lib/plugin.php');
-
-try {
-    require('config.php');
-} catch (Exception $e) {
-    die("Please copy config.php-dist to config.php, set your configuration variables, and re-run this script.");
-}
 
 class Minion {
 
@@ -18,8 +11,8 @@ class Minion {
     private $plugins = array();
     private $triggers = array();
 
-    public function __construct () {
-        $this->config = new Config();
+    public function __construct (Config $config = null) {
+        $this->config = is_null($config) ? new Config() : $config;
 
         foreach (glob("{$this->config->PluginDirectory}/*.php") as $pluginFile) {
             // Instantiate plugin.
@@ -41,8 +34,8 @@ class Minion {
         }
     }
 
-    public function run () {
-        $this->socket = new Socket($this->config->Host, $this->config->Port);
+    public function run (Socket $socket = null) {
+        $this->socket = is_null($socket) ? new Socket($this->config->Host, $this->config->Port) : $socket;
 
         while (true) {
             $this->trigger('loop-start');

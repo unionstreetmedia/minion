@@ -1,7 +1,14 @@
 #!/usr/bin/env php
 <?php
 
+require('lib/config.base.php');
 require('lib/minion.php');
+
+try {
+    require('config.php');
+} catch (Exception $e) {
+    die("Please copy config.php-dist to config.php, set your configuration variables, and re-run this script.");
+}
 
 $minion = new Minion();
 $minion->run();
