@@ -116,6 +116,12 @@ class Minion {
         return array('source' => $source, 'command' => $command, 'arguments' => $arguments, 'message' => $message);
     }
 
+    public function updateNickname ($nickname) {
+        foreach ($this->plugins as $plugin) {
+            $plugin->updateNickname($nickname);
+        }
+    }
+
     public function __destruct () {
         $this->trigger('disconnect');
         $this->socket->disconnect();
