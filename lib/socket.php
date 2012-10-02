@@ -48,14 +48,6 @@ class Socket {
         return fgets($this->socket, 512);
     }
 
-    public function reconnect ($delay = 0) {
-        if ($this->connected()) {
-            $this->disconnect();
-        }
-        sleep($delay);
-        return $this->connect();
-    }
-
     public function disconnect () {
         if ($this->connected()) {
             fclose($this->socket);
