@@ -14,22 +14,24 @@ class Minion {
     public function __construct (Config $config = null) {
         $this->config = is_null($config) ? new Config() : $config;
 
-        foreach (glob("{$this->config->PluginDirectory}/*.php") as $pluginFile) {
-            // Instantiate plugin.
-            $plugin = include($pluginFile);
-            
-            // Configure plugin.
-            if (isset($this->config->PluginConfig[$plugin->Name])) {
+        // Load plugins based on configuration.
+        foreach ($this->config->PluginConfig as $pluginName => $pluginConfig) {
+            $pluginFile = $this->config->PluginDirectory . '/' . strtolower($pluginName) . '.php';
+            if (file_exists($pluginFile)) {
+                // Instantiate plugin.
+                $plugin = include($pluginFile);
+                
+                // Configure plugin.
                 $plugin->configure($this->config->PluginConfig[$plugin->Name]);
-            }
-            array_push($this->plugins, $plugin);
-            
-            // Capture plugin's triggers locally so that we can access them quickly.
-            foreach ($plugin->On as $event => $trigger) {
-                if (!isset($this->triggers[$event]) or !is_array($this->triggers[$event])) {
-                    $this->triggers[$event] = array();
+                array_push($this->plugins, $plugin);
+                
+                // Capture plugin's triggers locally so that we can access them quickly.
+                foreach ($plugin->On as $event => $trigger) {
+                    if (!isset($this->triggers[$event]) or !is_array($this->triggers[$event])) {
+                        $this->triggers[$event] = array();
+                    }
+                    $this->triggers[$event][$plugin->Name] =& $plugin->On[$event];
                 }
-                $this->triggers[$event][$plugin->Name] =& $plugin->On[$event];
             }
         }
     }
