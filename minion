@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+namespace Minion;
+
 require('lib/config.base.php');
 require('lib/minion.php');
 

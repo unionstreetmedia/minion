@@ -1,5 +1,7 @@
 <?php
 
+namespace Minion\Plugins;
+
 $Core = new Plugin(
     'Core',
     'Minion core functionality.',

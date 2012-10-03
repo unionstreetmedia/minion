@@ -1,5 +1,7 @@
 <?php
 
+namespace Minion;
+
 require('lib/socket.php');
 require('lib/plugin.php');
 

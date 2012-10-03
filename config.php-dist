@@ -1,5 +1,7 @@
 <?php
 
+namespace Minion;
+
 class Config extends ConfigBase {
 
 }

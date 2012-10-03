@@ -1,5 +1,7 @@
 <?php
 
+namespace Minion\Plugins;
+
 $Channel = new Plugin(
     'Channel',
     'Channel-related functionality.',
