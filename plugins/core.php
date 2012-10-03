@@ -2,7 +2,7 @@
 
 namespace Minion\Plugins;
 
-$Core = new Plugin(
+$Core = new \Minion\Plugin(
     'Core',
     'Minion core functionality.',
     'Ryan N. Freebern / ryan@freebern.org'

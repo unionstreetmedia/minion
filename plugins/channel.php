@@ -2,7 +2,7 @@
 
 namespace Minion\Plugins;
 
-$Channel = new Plugin(
+$Channel = new \Minion\Plugin(
     'Channel',
     'Channel-related functionality.',
     'Ryan N. Freebern / ryan@freebern.org'
