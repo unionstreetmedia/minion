@@ -2,8 +2,6 @@
 
 namespace Minion;
 
-require('lib/socket.php');
-
 // Override fsockopen within the Minion namespace.
 function fsockopen () {
     return fopen('/tmp/minionSocketData.txt', 'c+');

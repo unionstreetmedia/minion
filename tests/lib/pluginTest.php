@@ -2,8 +2,6 @@
 
 namespace Minion;
 
-require('lib/plugin.php');
-
 class PluginTest extends \PHPUnit_Framework_TestCase {
 
     public function testConstructor () {
