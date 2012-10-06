@@ -12,29 +12,43 @@ class Minion {
     private $socket;
     private $plugins = array();
     private $triggers = array();
+    private $exit = false;
 
     public function __construct (Config $config = null) {
         $this->config = is_null($config) ? new Config() : $config;
 
         // Load plugins based on configuration.
         foreach ($this->config->PluginConfig as $pluginName => $pluginConfig) {
-            $pluginFile = $this->config->PluginDirectory . '/' . strtolower($pluginName) . '.php';
-            if (file_exists($pluginFile)) {
-                // Instantiate plugin.
-                $plugin = include($pluginFile);
-                
-                // Configure plugin.
-                $plugin->configure($this->config->PluginConfig[$plugin->Name]);
-                array_push($this->plugins, $plugin);
-                
-                // Capture plugin's triggers locally so that we can access them quickly.
-                foreach ($plugin->On as $event => $trigger) {
-                    if (!isset($this->triggers[$event]) or !is_array($this->triggers[$event])) {
-                        $this->triggers[$event] = array();
-                    }
-                    $this->triggers[$event][$plugin->Name] =& $plugin->On[$event];
-                }
+            try {
+                $this->loadPlugin($pluginName, $pluginConfig);
+            } catch (RuntimeException $e) {
+                $this->log($e, 'WARNING');
             }
+        }
+    }
+
+    public function loadPlugin ($pluginName, Array $pluginConfig) {
+        $pluginFile = $this->config->PluginDirectory . '/' . strtolower($pluginName) . '.php';
+        if (file_exists($pluginFile)) {
+            $this->addPlugin(include($pluginFile), $pluginConfig);
+            return true;
+        }
+
+        throw new \RuntimeException("Couldn't load plugin $pluginName: file $pluginFile doesn't exist.");
+    }
+
+    public function addPlugin (Plugin $plugin, Array $pluginConfig) {
+        array_push($this->plugins, $plugin);
+        
+        // Configure plugin.
+        $plugin->configure($pluginConfig);
+
+        // Capture plugin's triggers locally so that we can access them quickly.
+        foreach ($plugin->On as $event => $trigger) {
+            if (!isset($this->triggers[$event]) or !is_array($this->triggers[$event])) {
+                $this->triggers[$event] = array();
+            }
+            $this->triggers[$event][$plugin->Name] =& $plugin->On[$event];
         }
     }
 
@@ -63,6 +77,9 @@ class Minion {
             }
 
             $this->trigger('loop-end');
+            if ($this->exit) {
+                break;
+            }
         }
     }
 
@@ -77,17 +94,23 @@ class Minion {
 
     public function send ($message) {
         $this->trigger('before-send', $message);
-        $this->socket->write($message);
+        $status = $this->socket->write($message);
         $this->log("Sent: $message");
         $this->trigger('after-send', $message);
+        return $status;
     }
 
     public function msg ($message, $target) {
-        $this->send("PRIVMSG $target :$message");
+        return $this->send("PRIVMSG $target :$message");
     }
 
     public function ctcp ($message, $target) {
-        $this->send("PRIVMSG $target :" . chr(1) . $message . chr(1));
+        return $this->send("PRIVMSG $target :" . chr(1) . $message . chr(1));
+    }
+
+    public function quit ($message) {
+        $this->send("QUIT $message");
+        return $this->exit = true;
     }
 
     private function parse ($data) {
@@ -117,12 +140,17 @@ class Minion {
         foreach ($this->plugins as $plugin) {
             $plugin->updateNickname($nickname);
         }
+        return true;
     }
 
     public function __destruct () {
         $this->trigger('disconnect');
-        $this->socket->disconnect();
-        fclose($this->log);
+        if ($this->socket instanceof Socket) {
+            $this->socket->disconnect();
+        }
+        if (is_resource($this->log)) {
+            fclose($this->log);
+        }
     }
 
     public function log ($message, $level = 'INFO') {
@@ -130,7 +158,7 @@ class Minion {
             $this->log = fopen($this->config->MinionLogFile, 'a');
         }
 
-        fwrite($this->log, date('Y-m-d H:i:s') . " [$level] $message\n");
+        return fwrite($this->log, date('Y-m-d H:i:s') . " [$level] $message\n");
     }
 
 }
