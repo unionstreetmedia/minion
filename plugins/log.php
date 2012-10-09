@@ -33,8 +33,15 @@ class LogPlugin extends \Minion\Plugin {
     private function init () {
         if (!$this->Initialized) {
             if (strtolower($this->conf('DB')) !== 'text') {
-                $this->DB = new \PDO($this->conf('DSN'), $this->conf('Username'), $this->conf('Password'));
-                $this->DB->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $this->DB = new \PDO(
+                    $this->conf('DSN'),
+                    $this->conf('Username'),
+                    $this->conf('Password'),
+                    array(
+                        \PDO::ATTR_PERSISTENT => true,
+                        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+                    )
+                );
             }
             $this->createTable();
             $this->Initialized = true;
