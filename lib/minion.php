@@ -55,7 +55,7 @@ class Minion {
     public function run (Socket $socket = null) {
         $this->socket = is_null($socket) ? new Socket($this->config->Host, $this->config->Port) : $socket;
 
-        while (true) {
+        while (!$this->exit) {
             $this->trigger('loop-start');
             if ($this->socket->connect()) {
                 $this->trigger('connect');
@@ -77,9 +77,6 @@ class Minion {
             }
 
             $this->trigger('loop-end');
-            if ($this->exit) {
-                break;
-            }
         }
     }
 
@@ -105,7 +102,7 @@ class Minion {
     }
 
     public function ctcp ($message, $target) {
-        return $this->send("PRIVMSG $target :" . chr(1) . $message . chr(1));
+        return $this->msg("\1$message\1", $target);
     }
 
     public function quit ($message) {
