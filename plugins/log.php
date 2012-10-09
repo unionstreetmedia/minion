@@ -84,14 +84,11 @@ class LogPlugin extends \Minion\Plugin {
             `type` VARCHAR(12) NOT NULL,
             `source` VARCHAR(64) NOT NULL,
             `channel` VARCHAR(64) NOT NULL,
-            `message` TEXT
+            `message` TEXT,
+            INDEX(source),
+            INDEX(ts),
+            INDEX(channel)
         )";
-        $this->DB->query($sql);
-        $sql = "CREATE INDEX IF NOT EXISTS source_index ON Log (source)";
-        $this->DB->query($sql);
-        $sql = "CREATE INDEX IF NOT EXISTS ts_index ON Log (ts)";
-        $this->DB->query($sql);
-        $sql = "CREATE INDEX IF NOT EXISTS channel_index ON Log (channel)";
         $this->DB->query($sql);
     }
 
