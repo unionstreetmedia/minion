@@ -1,2 +1,5 @@
 config.php
 minion.log
+log.sq3
+logs
+logs/*
