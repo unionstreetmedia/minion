@@ -9,6 +9,7 @@ class Plugin {
     public $Author;
     public $On = array();
     public $Config;
+    public $Minion;
     protected $Nickname;
 
     public function __construct ($name, $description, $author) {

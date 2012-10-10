@@ -12,6 +12,7 @@ class Minion {
     private $socket;
     private $plugins = array();
     private $triggers = array();
+    public $state = array();
     private $exit = false;
 
     public function __construct (Config $config = null) {
@@ -50,11 +51,15 @@ class Minion {
             }
             $this->triggers[$event][$plugin->Name] =& $plugin->On[$event];
         }
+
+        // Give each plugin a reference to this object.
+        $plugin->Minion =& $this;
     }
 
     public function run (Socket $socket = null) {
         $this->socket = is_null($socket) ? new Socket($this->config->Host, $this->config->Port) : $socket;
 
+        $this->trigger('before-loop');
         while (!$this->exit) {
             $this->trigger('loop-start');
             if ($this->socket->connect()) {
@@ -78,6 +83,7 @@ class Minion {
 
             $this->trigger('loop-end');
         }
+        $this->trigger('after-loop');
     }
 
     private function trigger ($event, &$data = null) {
