@@ -27,48 +27,32 @@ For Text, DSN should just be a path to a directory in which to store log files.
 
 class LogPlugin extends \Minion\Plugin {
 
-    private $DB;
     private $Initialized = false;
 
     private function init () {
         if (!$this->Initialized) {
-            if (strtolower($this->conf('DB')) !== 'text') {
-                $this->DB = new \PDO(
-                    $this->conf('DSN'),
-                    $this->conf('Username'),
-                    $this->conf('Password'),
-                    array(
-                        \PDO::ATTR_PERSISTENT => true,
-                        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
-                    )
-                );
-            }
             $this->createTable();
             $this->Initialized = true;
         }
     }
 
     private function createTable () {
-        switch (strtolower($this->conf('DB'))) {
-            case 'sqlite':
-                $this->createTableSQLite();
-                break;
-            case 'mysql':
-                $this->createTableMySQL();
-                break;
-            case 'text':
-                $this->createDirectory();
-                break;
+        if ($this->conf('TextLog')) {
+            $this->createDirectory();
+        } else {
+            switch (strtolower($this->Minion->state['DBType'])) {
+                case 'sqlite':
+                    $this->createTableSQLite();
+                    break;
+                case 'mysql':
+                    $this->createTableMySQL();
+                    break;
+            }
         }
     }
 
     private function createTableSQLite () {
-        // Ensure the SQLite DB file exists, if possible.
-        list ($db, $file) = explode(':', $this->conf('DSN'), 2);
-        if ($file !== ':memory:') {
-            touch($file);
-        }
-
+        $db = $this->Minion->state['DB'];
         $sql = "CREATE TABLE IF NOT EXISTS Log (
             `ts` INTEGER NOT NULL DEFAULT (datetime('now')),
             `type` TEXT NOT NULL,
@@ -76,13 +60,13 @@ class LogPlugin extends \Minion\Plugin {
             `channel` TEXT NOT NULL,
             `message` TEXT
         )";
-        $this->DB->query($sql);
+        $db->query($sql);
         $sql = "CREATE INDEX IF NOT EXISTS source_index ON Log (source)";
-        $this->DB->query($sql);
+        $db->query($sql);
         $sql = "CREATE INDEX IF NOT EXISTS ts_index ON Log (ts)";
-        $this->DB->query($sql);
+        $db->query($sql);
         $sql = "CREATE INDEX IF NOT EXISTS channel_index ON Log (channel)";
-        $this->DB->query($sql);
+        $db->query($sql);
     }
 
     private function createTableMySQL () {
@@ -96,35 +80,31 @@ class LogPlugin extends \Minion\Plugin {
             INDEX(ts),
             INDEX(channel)
         )";
-        $this->DB->query($sql);
+        $this->Minion->state['DB']->query($sql);
     }
 
     private function createDirectory () {
-        mkdir($this->conf('DSN'), 0777, true);
+        mkdir($this->conf('TextLogDirectory'), 0777, true);
     }
 
     public function log ($from, $channel, $type, $message) {
         $this->init();
-        switch (strtolower($this->conf('DB'))) {
-            case 'sqlite':
-            case 'mysql':
-                $this->logSQL($from, $channel, $type, $message);
-                break;
-            case 'text':
-                $this->logText($from, $channel, $type, $message);
-                break;
+        if ($this->conf('TextLog')) {
+            $this->logText($from, $channel, $type, $message);
+        } else {
+            $this->logSQL($from, $channel, $type, $message);
         }
     }
 
     private function logSQL ($from, $channel, $type, $message) {
         $sql = "INSERT INTO Log (type, source, channel, message) VALUES (?, ?, ?, ?)";
-        $statement = $this->DB->prepare($sql);
+        $statement = $this->Minion->state['DB']->prepare($sql);
         $statement->execute(array($type, $from, $channel, $message));
     }
 
     private function logText ($from, $channel, $type, $message) {
         $line = '[' . date('H:i:s') . "] <$from> $message\n";
-        file_put_contents($this->conf('DSN') . "/$channel-" . date('Y-m-d') . '.txt', $line, FILE_APPEND);
+        file_put_contents($this->conf('TextLogDirectory') . "/$channel-" . date('Y-m-d') . '.txt', $line, FILE_APPEND);
     }
 
 }
