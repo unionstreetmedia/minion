@@ -59,6 +59,10 @@ class Plugin {
         $this->Nickname = $nickname;
     }
 
+    public function hasNickname ($nickname) {
+        return ($nickname == $this->Nickname);
+    }
+
     public function simpleCommand ($data) {
         $words = explode(' ', $data['message']);
         $command = array_shift($words);
