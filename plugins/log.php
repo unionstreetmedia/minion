@@ -84,7 +84,9 @@ class LogPlugin extends \Minion\Plugin {
     }
 
     private function createDirectory () {
-        mkdir($this->conf('TextLogDirectory'), 0777, true);
+        if (!file_exists($this->conf('TextLogDirectory'))) {
+            mkdir($this->conf('TextLogDirectory'), 0777, true);
+        }
     }
 
     public function log ($from, $channel, $type, $message) {
