@@ -10,6 +10,7 @@ class PluginTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($plugin->Name, 'War and Peace');
         $this->assertEquals($plugin->Description, 'An epic novel about Tsarist Russia.');
         $this->assertEquals($plugin->Author, 'Leo Tolstoy');
+        return $plugin;
     }
 
     /**
@@ -62,6 +63,15 @@ class PluginTest extends \PHPUnit_Framework_TestCase {
         $plugin = new Plugin('A', 'B', 'C');
         $plugin->updateNickname('Horatio');
         $this->assertEquals($plugin->simpleCommand(array('message' => 'Horatio: !hi')), array('hi', array()));
+    }
+
+    /**
+     * @depends testConstructor
+     * @depends testNickname
+     */
+    public function testHasNickname ($plugin) {
+        $plugin->updateNickname('Ophelia');
+        $this->assertTrue($plugin->hasNickname('Ophelia'));
     }
 
     /**
