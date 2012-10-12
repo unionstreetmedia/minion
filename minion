@@ -3,6 +3,8 @@
 
 namespace Minion;
 
+chdir(__DIR__);
+
 require('lib/config.base.php');
 require('lib/minion.php');
 
