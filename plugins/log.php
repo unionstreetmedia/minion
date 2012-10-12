@@ -131,6 +131,11 @@ return $Log
         }
     })
     ->on('JOIN', function (&$minion, &$data) use ($Log) {
+        // Account for apparent UnrealIRCd weirdness.
+        if (!count($data['arguments'])) {
+            $data['arguments'][0] = $data['message'];
+            $data['message'] = null;
+        }
         $Log->log($data['source'], $data['arguments'][0], 'JOIN', $data['message']);
     })
     ->on('PART', function (&$minion, &$data) use ($Log) {
