@@ -16,3 +16,5 @@ Plugins are in the `plugins` directory. Their configuration goes in `config.php`
 
 ## Testing
 Minion's tests use [PHPUnit](http://phpunit.de). Install PHPUnit and run `phpunit tests/` in your minion base directory.
+
+To automatically run the test suite before each commit, put this hook in your `.git/hooks` directory: https://gist.github.com/3879583
