@@ -9,8 +9,12 @@ class KayakoPlugin extends \Minion\Plugin {
         if (is_null($kdb)) {
             $this->Minion->log('Kayako plugin needs KayakoDB configured.', 'WARNING');
         } else {
-            $statement = $this->Minion->state['DB']->prepare("SELECT ticketmaskid, fullname, email, subject, DATE_FORMAT(from_unixtime(dateline), '%Y-%m-%d %H:%i:%s') as created, date_format(from_unixtime(lastactivity), '%Y-%m-%d %H:%i:%s') as last, totalreplies FROM $kdb.swtickets WHERE ticketid = ?");
-            $statement->execute(array($ticket));
+            $condition = 'WHERE ticketid = ? or ticketmaskid = ?';
+            if ($ticket == 'last') {
+                $condition = 'ORDER BY ticketid DESC LIMIT 1';
+            }
+            $statement = $this->Minion->state['DB']->prepare("SELECT ticketid, ticketmaskid, fullname, email, subject, DATE_FORMAT(from_unixtime(dateline), '%Y-%m-%d %H:%i:%s') as created, date_format(from_unixtime(lastactivity), '%Y-%m-%d %H:%i:%s') as last, totalreplies FROM $kdb.swtickets $condition");
+            $statement->execute(array($ticket, $ticket));
             $results = $statement->fetchAll();
             if (count($results)) {
                 return $results[0];
@@ -46,7 +50,7 @@ return $Kayako
             foreach ($ticketIDs as $ticketID) {
                 $ticket = $Kayako->getTicket($ticketID);
                 if ($ticket) {
-                    $minion->msg("Ticket {$ticket['ticketmaskid']}: {$ticket['subject']} [{$ticket['fullname']} / {$ticket['email']}] [Created {$ticket['created']}] [Updated {$ticket['last']}] [{$ticket['totalreplies']} replies] http://support.unionstreetmedia.com/staff/?_m=tickets&_a=viewticket&ticketid=$ticketID", $data['arguments'][0]);
+                    $minion->msg("Ticket {$ticket['ticketmaskid']}: {$ticket['subject']} [{$ticket['fullname']} / {$ticket['email']}] [Created {$ticket['created']}] [Updated {$ticket['last']}] [{$ticket['totalreplies']} replies] http://support.unionstreetmedia.com/staff/?_m=tickets&_a=viewticket&ticketid={$ticket['ticketid']}", $data['arguments'][0]);
                 }
             }
         }
