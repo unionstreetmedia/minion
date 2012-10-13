@@ -24,9 +24,19 @@ return $Core
 })
 
 // ERR_NICKNAMEINUSE
-->on('433', function (&$minion, &$data) {
+->on('433', function (&$minion, &$data) use ($Core) {
     $nick = $Core->conf('Nick') . (string) rand(1,999);
     $minion->send("NICK {$nick}");
+})
+
+->on('PRIVMSG', function (&$minion, &$data) use ($Core) {
+    list ($command, $arguments) = $Core->simpleCommand($data);
+    if ($command == 'reload') {
+        $minion->quit('Reloading.');
+        $minion->__destruct();
+        pcntl_exec('./minion');
+        exit();
+    }
 });
 
 ?>
