@@ -200,6 +200,7 @@ class Config {
     public $Port = 6667;
 
     public $MinionLogFile = '/dev/null';
+    public $Debug = false;
 
     public $PluginDirectory = './tests/lib';
     public $PluginConfig = array();

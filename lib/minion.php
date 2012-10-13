@@ -54,9 +54,12 @@ class Minion {
 
         // Give each plugin a reference to this object.
         $plugin->Minion =& $this;
+
+        $this->log("Added {$plugin->Name} plugin.", 'INFO');
     }
 
     public function run (Socket $socket = null) {
+        $this->log('Started on ' . date('Y-m-d') . ' at ' . date('H:i:s'), 'ALL');
         $this->socket = is_null($socket) ? new Socket($this->config->Host, $this->config->Port) : $socket;
 
         $this->trigger('before-loop');
@@ -64,6 +67,7 @@ class Minion {
             $this->trigger('loop-start');
             if ($this->socket->connect()) {
                 $this->trigger('connect');
+                $this->log("Connected to {$this->config->Host}:{$this->config->Port}.", 'ALL');
             }
 
             $data = $this->socket->read();
@@ -89,7 +93,7 @@ class Minion {
     private function trigger ($event, &$data = null) {
         if (isset($this->triggers[$event])) {
             foreach ($this->triggers[$event] as $pluginName => $trigger) {
-                $this->log("Triggering $pluginName:$event.");
+                $this->log("Triggering $pluginName:$event.", 'INFO');
                 $trigger($this, &$data);
             }
         }
@@ -98,7 +102,7 @@ class Minion {
     public function send ($message) {
         $this->trigger('before-send', $message);
         $status = $this->socket->write($message);
-        $this->log("Sent: $message");
+        $this->log("Sent: $message", 'INFO');
         $this->trigger('after-send', $message);
         return $status;
     }
@@ -151,6 +155,7 @@ class Minion {
         if ($this->socket instanceof Socket) {
             $this->socket->disconnect();
         }
+        $this->log('Disconnected.', 'ALL');
         if (is_resource($this->log)) {
             fclose($this->log);
         }
@@ -161,7 +166,11 @@ class Minion {
             $this->log = fopen($this->config->MinionLogFile, 'a');
         }
 
-        return fwrite($this->log, date('Y-m-d H:i:s') . " [$level] $message\n");
+        $levels = array('ALL' => 0, 'ERROR' => 1, 'WARNING' => 2, 'INFO' => 3);
+        $debugLevel = isset($this->config->Debug) ? $this->config->Debug : false;
+        if (isset($levels[$level]) and $this->config->Debug >= $levels[$level]) {
+            return fwrite($this->log, date('Y-m-d H:i:s') . " [$level] $message\n");
+        }
     }
 
 }
