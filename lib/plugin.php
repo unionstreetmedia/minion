@@ -10,7 +10,6 @@ class Plugin {
     public $On = array();
     public $Config;
     public $Minion;
-    protected $Nickname;
 
     public function __construct ($name, $description, $author) {
         $this->Name = $name;
@@ -55,19 +54,11 @@ class Plugin {
         }
     }
 
-    public function updateNickname ($nickname) {
-        $this->Nickname = $nickname;
-    }
-
-    public function hasNickname ($nickname) {
-        return ($nickname == $this->Nickname);
-    }
-
     public function simpleCommand ($data) {
         $words = explode(' ', $data['message']);
         $command = array_shift($words);
         
-        if ($command == $this->Nickname . ':') {
+        if ($command == $this->Minion->state['Nickname'] . ':') {
             $command = array_shift($words);
         }
 

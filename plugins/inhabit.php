@@ -88,7 +88,7 @@ return $Inhabit
     })
     ->on('KICK', function (&$minion, &$data) use ($Inhabit) {
         list ($channel, $nickname) = $data['arguments'];
-        if ($Inhabit->hasNickname($nickname) and isset($Inhabit->Inhabited[$channel])) {
+        if ($Inhabit->Minion->state['Nickname'] == $nickname and isset($Inhabit->Inhabited[$channel])) {
             $minion->send("JOIN $channel");
         }
     });

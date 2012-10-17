@@ -159,17 +159,6 @@ class MinionTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('PRIVMSG bar :' . chr(1) . 'foo' . chr(1), $minion->ctcp('foo', 'bar'));
     }
 
-    /**
-     * @depends testConstructor
-     * @depends testAddPlugin
-     */
-    public function testUpdateNickname ($minion) {
-        $this->assertTrue($minion->updateNickname('Pinion'));
-        $plugins = $this->getPrivate($minion, 'plugins');
-        $nickname = $this->getPrivate($plugins[0], 'Nickname');
-        $this->assertEquals($nickname, 'Pinion');
-    }
-
     // Helpers
     private function setSocket (&$minion) {
         $this->setPrivate($minion, 'socket', self::$Socket);

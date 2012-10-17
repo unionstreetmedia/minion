@@ -50,28 +50,13 @@ class PluginTest extends \PHPUnit_Framework_TestCase {
      */
     public function testSimpleCommand () {
         $plugin = new Plugin('A', 'B', 'C');
+        $minion = $this->getMock('Minion\Minion');
+        $minion->state['Nickname'] = 'Foo';
+        $plugin->Minion = $minion;
         $this->assertFalse($plugin->simpleCommand(array('message' => 'not a command')));
         $this->assertEquals($plugin->simpleCommand(array('message' => '!command argument argument')), array('command', array('argument','argument')));
         $this->assertEquals($plugin->simpleCommand(array('message' => '!cool')), array('cool', array()));
-    }
-
-    /**
-     * @depends testConstructor
-     * @depends testSimpleCommand
-     */
-    public function testNickname () {
-        $plugin = new Plugin('A', 'B', 'C');
-        $plugin->updateNickname('Horatio');
-        $this->assertEquals($plugin->simpleCommand(array('message' => 'Horatio: !hi')), array('hi', array()));
-    }
-
-    /**
-     * @depends testConstructor
-     * @depends testNickname
-     */
-    public function testHasNickname ($plugin) {
-        $plugin->updateNickname('Ophelia');
-        $this->assertTrue($plugin->hasNickname('Ophelia'));
+        $this->assertEquals($plugin->simpleCommand(array('message' => 'Foo: !something')), array('something', array()));
     }
 
     /**
