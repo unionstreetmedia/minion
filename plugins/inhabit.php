@@ -56,15 +56,15 @@ $Inhabit = new InhabitPlugin(
 );
 
 return $Inhabit
-    ->on('loop-start', function (&$minion, &$data) use ($Inhabit) {
+    ->on('loop-start', function (&$data) use ($Inhabit) {
         $Inhabit->init();
     })
-    ->on('376', function (&$minion, &$data) use ($Inhabit) {
+    ->on('376', function (&$data) use ($Inhabit) {
         foreach (array_keys($Inhabit->Inhabited) as $channel) {
-            $minion->send("JOIN $channel");
+            $Inhabit->Minion->send("JOIN $channel");
         }
     })
-    ->on('PRIVMSG', function (&$minion, &$data) use ($Inhabit) {
+    ->on('PRIVMSG', function (&$data) use ($Inhabit) {
         list ($command, $arguments) = $Inhabit->simpleCommand($data);
         if (count($arguments)) {
             $channel = $arguments[0];
@@ -76,19 +76,19 @@ return $Inhabit
             switch ($command) {
                 case 'inhabit':
                     $Inhabit->add($channel);
-                    $minion->send("JOIN $channel");
+                    $Inhabit->Minion->send("JOIN $channel");
                     break;
                 case 'evict':
                     $Inhabit->delete($channel);
                     list ($nickname, $ident) = explode('!', $data['source']);
-                    $minion->send("PART $channel Evicted by $nickname");
+                    $Inhabit->Minion->send("PART $channel Evicted by $nickname");
                     break;
             }
         }
     })
-    ->on('KICK', function (&$minion, &$data) use ($Inhabit) {
+    ->on('KICK', function (&$data) use ($Inhabit) {
         list ($channel, $nickname) = $data['arguments'];
         if ($Inhabit->Minion->state['Nickname'] == $nickname and isset($Inhabit->Inhabited[$channel])) {
-            $minion->send("JOIN $channel");
+            $Inhabit->Minion->send("JOIN $channel");
         }
     });

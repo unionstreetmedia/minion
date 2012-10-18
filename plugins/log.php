@@ -118,7 +118,7 @@ $Log = new LogPlugin(
 );
 
 return $Log
-    ->on('PRIVMSG', function (&$minion, &$data) use ($Log) {
+    ->on('PRIVMSG', function (&$data) use ($Log) {
         // Check for CTCP ACTION
         if (preg_match("/^\1.*\1$/", $data['message'])) {
             $message = trim($data['message'], "\1");
@@ -130,7 +130,7 @@ return $Log
             $Log->log($data['source'], $data['arguments'][0], 'PRIVMSG', $data['message']); 
         }
     })
-    ->on('JOIN', function (&$minion, &$data) use ($Log) {
+    ->on('JOIN', function (&$data) use ($Log) {
         // Account for apparent UnrealIRCd weirdness.
         if (!count($data['arguments'])) {
             $data['arguments'][0] = $data['message'];
@@ -138,16 +138,16 @@ return $Log
         }
         $Log->log($data['source'], $data['arguments'][0], 'JOIN', $data['message']);
     })
-    ->on('PART', function (&$minion, &$data) use ($Log) {
+    ->on('PART', function (&$data) use ($Log) {
         $Log->log($data['source'], $data['arguments'][0], 'PART', $data['message']);
     })
-    ->on('QUIT', function (&$minion, &$data) use ($Log) {
+    ->on('QUIT', function (&$data) use ($Log) {
         $Log->log($data['source'], 'global', 'QUIT', $data['message']);
     })
-    ->on('NICK', function (&$minion, &$data) use ($Log) {
+    ->on('NICK', function (&$data) use ($Log) {
         $Log->log($data['source'], 'global', 'NICK', $data['message']);
     })
-    ->on('TOPIC', function (&$minion, &$data) use ($Log) {
+    ->on('TOPIC', function (&$data) use ($Log) {
         $Log->log($data['source'], $data['arguments'][0], 'TOPIC', $data['message']);
     });
 

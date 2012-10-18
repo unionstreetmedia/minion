@@ -94,7 +94,7 @@ class Minion {
         if (isset($this->triggers[$event])) {
             foreach ($this->triggers[$event] as $pluginName => $trigger) {
                 $this->log("Triggering $pluginName:$event.", 'INFO');
-                $trigger($this, &$data);
+                $trigger(&$data);
             }
         }
     }
@@ -144,6 +144,10 @@ class Minion {
     }
 
     public function __destruct () {
+        $this->trigger('destruct');
+        foreach ($this->plugins as $plugin) {
+            unset($plugin);
+        }
         $this->trigger('disconnect');
         if ($this->socket instanceof Socket) {
             $this->socket->disconnect();

@@ -12,11 +12,12 @@ class MinionTest extends \PHPUnit_Framework_TestCase {
 
     public static function setUpBeforeClass () {
         self::$Config = new Config();
-        self::$Plugin = new Plugin('A', 'B', 'C');
-        self::$Plugin
-            ->on('a', function (&$minion, &$data) { $minion->Foo = 'a'; })
-            ->on('c', function (&$minion, &$data) { $minion->Foo = 'c'; })
-            ->on('loop-end', function (&$minion, &$data) { $minion->quit('bye'); });
+        $plugin = new Plugin('A', 'B', 'C');
+        $plugin
+            ->on('a', function (&$data) use ($plugin) { $plugin->Minion->Foo = 'a'; })
+            ->on('c', function (&$data) use ($plugin) { $plugin->Minion->Foo = 'c'; })
+            ->on('loop-end', function (&$data) use ($plugin) { $plugin->Minion->quit('bye'); });
+        self::$Plugin = $plugin;
     }
 
     public function setUp () {

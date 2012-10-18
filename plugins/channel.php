@@ -11,18 +11,18 @@ $Channel = new \Minion\Plugin(
 return $Channel
 
 // RPL_ENDOFMOTD
-->on('376', function (&$minion, &$data) use ($Channel) {
+->on('376', function (&$data) use ($Channel) {
     foreach ($Channel->conf('AutoJoin') as $channel) {
-        $minion->send("JOIN $channel");
+        $Channel->Minion->send("JOIN $channel");
     }
 })
 
-->on('PRIVMSG', function (&$minion, &$data) use ($Channel) {
+->on('PRIVMSG', function (&$data) use ($Channel) {
     list ($command, $arguments) = $Channel->simpleCommand($data);
     switch ($command) {
         case 'join':
             if (count($arguments)) {
-                $minion->send("JOIN $arguments[0]");
+                $Channel->Minion->send("JOIN $arguments[0]");
             }
             break;
         case 'part':
@@ -32,7 +32,7 @@ return $Channel
             } else {
                 $channel = $data['arguments'][0];
             }
-            $minion->send("PART $channel Dismissed by $nickname.");
+            $Channel->Minion->send("PART $channel Dismissed by $nickname.");
             break;
     }
 });

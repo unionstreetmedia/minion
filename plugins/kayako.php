@@ -32,7 +32,7 @@ $Kayako = new KayakoPlugin(
 );
 
 return $Kayako
-    ->on('PRIVMSG', function (&$minion, &$data) use ($Kayako) {
+    ->on('PRIVMSG', function (&$data) use ($Kayako) {
         if (isset($data['arguments'][0]) and preg_match('/^[#&][^ \a\0\012\015,:]+/', $data['arguments'][0])) {
             $ticketIDs = array();
             list ($command, $arguments) = $Kayako->simpleCommand($data);
@@ -50,7 +50,7 @@ return $Kayako
             foreach ($ticketIDs as $ticketID) {
                 $ticket = $Kayako->getTicket($ticketID);
                 if ($ticket) {
-                    $minion->msg("Ticket {$ticket['ticketmaskid']}: {$ticket['subject']} [{$ticket['fullname']} / {$ticket['email']}] [Created {$ticket['created']}] [Updated {$ticket['last']}] [{$ticket['totalreplies']} replies] http://support.unionstreetmedia.com/staff/?_m=tickets&_a=viewticket&ticketid={$ticket['ticketid']}", $data['arguments'][0]);
+                    $Kayako->Minion->msg("Ticket {$ticket['ticketmaskid']}: {$ticket['subject']} [{$ticket['fullname']} / {$ticket['email']}] [Created {$ticket['created']}] [Updated {$ticket['last']}] [{$ticket['totalreplies']} replies] http://support.unionstreetmedia.com/staff/?_m=tickets&_a=viewticket&ticketid={$ticket['ticketid']}", $data['arguments'][0]);
                 }
             }
         }
