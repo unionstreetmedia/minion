@@ -9,7 +9,7 @@ class InhabitPlugin extends \Minion\Plugin {
 
     public function init () {
         if (!$this->Initialized) {
-            switch (strtolower($this->Minion->state['DBType'])) {
+            switch (strtolower($this->Minion->State['DBType'])) {
                 case 'sqlite':
                     $sql = 'CREATE TABLE IF NOT EXISTS Inhabit (`channel` TEXT NOT NULL UNIQUE)';
                     break;
@@ -17,14 +17,14 @@ class InhabitPlugin extends \Minion\Plugin {
                     $sql = 'CREATE TABLE IF NOT EXISTS Inhabit (`channel` VARCHAR(64) NOT NULL UNIQUE)';
                     break;
             }
-            $this->Minion->state['DB']->query($sql);
+            $this->Minion->State['DB']->query($sql);
             $this->Initialized = true;
         }
         $this->refreshInhabited();
     }
 
     private function refreshInhabited () {
-        $statement = $this->Minion->state['DB']->query('SELECT channel FROM Inhabit');
+        $statement = $this->Minion->State['DB']->query('SELECT channel FROM Inhabit');
         $results = $statement->fetchAll();
         foreach ($results as $row) {
             $this->Inhabited[$row['channel']] = true;
@@ -32,7 +32,7 @@ class InhabitPlugin extends \Minion\Plugin {
     }
 
     public function add ($channel) {
-        $statement = $this->Minion->state['DB']->prepare('INSERT INTO Inhabit (channel) VALUES (?)');
+        $statement = $this->Minion->State['DB']->prepare('INSERT INTO Inhabit (channel) VALUES (?)');
         try {
             $statement->execute(array($channel));
             $this->Inhabited[$channel] = true;
@@ -42,7 +42,7 @@ class InhabitPlugin extends \Minion\Plugin {
     }
 
     public function delete ($channel) {
-        $statement = $this->Minion->state['DB']->prepare('DELETE FROM Inhabit WHERE channel = ?');
+        $statement = $this->Minion->State['DB']->prepare('DELETE FROM Inhabit WHERE channel = ?');
         $statement->execute(array($channel));
         unset($this->Inhabited[$channel]);
     }
@@ -88,7 +88,7 @@ return $Inhabit
     })
     ->on('KICK', function (&$data) use ($Inhabit) {
         list ($channel, $nickname) = $data['arguments'];
-        if ($Inhabit->Minion->state['Nickname'] == $nickname and isset($Inhabit->Inhabited[$channel])) {
+        if ($Inhabit->Minion->State['Nickname'] == $nickname and isset($Inhabit->Inhabited[$channel])) {
             $Inhabit->Minion->send("JOIN $channel");
         }
     });

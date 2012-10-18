@@ -49,7 +49,7 @@ return $Wiki
     list ($command, $arguments) = $Wiki->simpleCommand($data);
     if ($command == 'wiki') {
         $target = $data['arguments'][0];
-        if ($target == $Wiki->Minion->state['Nickname']) {
+        if ($target == $Wiki->Minion->State['Nickname']) {
             list ($target, $ident) = explode('!', $data['source']);
         }
         if (count($arguments)) {

@@ -36,8 +36,8 @@ $DB = new DBPlugin(
 
 return $DB
     ->on('before-loop', function (&$data) use ($DB) {
-        $DB->Minion->state['DB'] = $DB->getDB();
-        $DB->Minion->state['DBType'] = $DB->conf('DB');
+        $DB->Minion->State['DB'] = $DB->getDB();
+        $DB->Minion->State['DBType'] = $DB->conf('DB');
     });
 
 ?>

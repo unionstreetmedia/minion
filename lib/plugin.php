@@ -58,7 +58,7 @@ class Plugin {
         $words = explode(' ', $data['message']);
         $command = array_shift($words);
         
-        if ($command == $this->Minion->state['Nickname'] . ':') {
+        if ($command == $this->Minion->State['Nickname'] . ':') {
             $command = array_shift($words);
         }
 

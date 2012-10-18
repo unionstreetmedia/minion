@@ -16,7 +16,7 @@ return $Core
     }
     $Core->Minion->send("USER {$Core->conf('Nick')} hostname {$Core->conf('RealName')}");
     $Core->Minion->Send("NICK {$Core->conf('Nick')}");
-    $Core->Minion->state['Nickname'] = $Core->conf('Nick');
+    $Core->Minion->State['Nickname'] = $Core->conf('Nick');
 })
 
 ->on('PING', function (&$data) use ($Core) {

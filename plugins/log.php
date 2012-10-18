@@ -40,7 +40,7 @@ class LogPlugin extends \Minion\Plugin {
         if ($this->conf('TextLog')) {
             $this->createDirectory();
         } else {
-            switch (strtolower($this->Minion->state['DBType'])) {
+            switch (strtolower($this->Minion->State['DBType'])) {
                 case 'sqlite':
                     $this->createTableSQLite();
                     break;
@@ -52,7 +52,7 @@ class LogPlugin extends \Minion\Plugin {
     }
 
     private function createTableSQLite () {
-        $db = $this->Minion->state['DB'];
+        $db = $this->Minion->State['DB'];
         $sql = "CREATE TABLE IF NOT EXISTS Log (
             `ts` INTEGER NOT NULL DEFAULT (datetime('now')),
             `type` TEXT NOT NULL,
@@ -80,7 +80,7 @@ class LogPlugin extends \Minion\Plugin {
             INDEX(ts),
             INDEX(channel)
         )";
-        $this->Minion->state['DB']->query($sql);
+        $this->Minion->State['DB']->query($sql);
     }
 
     private function createDirectory () {
@@ -100,7 +100,7 @@ class LogPlugin extends \Minion\Plugin {
 
     private function logSQL ($from, $channel, $type, $message) {
         $sql = "INSERT INTO Log (type, source, channel, message) VALUES (?, ?, ?, ?)";
-        $statement = $this->Minion->state['DB']->prepare($sql);
+        $statement = $this->Minion->State['DB']->prepare($sql);
         $statement->execute(array($type, $from, $channel, $message));
     }
 

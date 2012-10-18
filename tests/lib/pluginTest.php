@@ -51,7 +51,7 @@ class PluginTest extends \PHPUnit_Framework_TestCase {
     public function testSimpleCommand () {
         $plugin = new Plugin('A', 'B', 'C');
         $minion = $this->getMock('Minion\Minion');
-        $minion->state['Nickname'] = 'Foo';
+        $minion->State['Nickname'] = 'Foo';
         $plugin->Minion = $minion;
         $this->assertFalse($plugin->simpleCommand(array('message' => 'not a command')));
         $this->assertEquals($plugin->simpleCommand(array('message' => '!command argument argument')), array('command', array('argument','argument')));

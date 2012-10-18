@@ -7,19 +7,19 @@ require('lib/plugin.php');
 
 class Minion {
 
-    public $config;
-    private $log;
-    private $socket;
-    private $plugins = array();
-    private $triggers = array();
-    public $state = array();
-    private $exit = false;
+    private $Config;
+    private $Log;
+    private $Socket;
+    private $Plugins = array();
+    private $Triggers = array();
+    private $Exit = false;
+    public  $State = array();
 
     public function __construct (Config $config = null) {
-        $this->config = is_null($config) ? new Config() : $config;
+        $this->Config = is_null($config) ? new Config() : $config;
 
         // Load plugins based on configuration.
-        foreach ($this->config->PluginConfig as $pluginName => $pluginConfig) {
+        foreach ($this->Config->PluginConfig as $pluginName => $pluginConfig) {
             try {
                 $this->loadPlugin($pluginName, $pluginConfig);
             } catch (RuntimeException $e) {
@@ -29,7 +29,7 @@ class Minion {
     }
 
     public function loadPlugin ($pluginName, Array $pluginConfig) {
-        $pluginFile = $this->config->PluginDirectory . '/' . strtolower($pluginName) . '.php';
+        $pluginFile = $this->Config->PluginDirectory . '/' . strtolower($pluginName) . '.php';
         if (file_exists($pluginFile)) {
             $this->addPlugin(include($pluginFile), $pluginConfig);
             return true;
@@ -39,17 +39,17 @@ class Minion {
     }
 
     public function addPlugin (Plugin $plugin, Array $pluginConfig) {
-        array_push($this->plugins, $plugin);
+        array_push($this->Plugins, $plugin);
         
         // Configure plugin.
         $plugin->configure($pluginConfig);
 
         // Capture plugin's triggers locally so that we can access them quickly.
         foreach ($plugin->On as $event => $trigger) {
-            if (!isset($this->triggers[$event]) or !is_array($this->triggers[$event])) {
-                $this->triggers[$event] = array();
+            if (!isset($this->Triggers[$event]) or !is_array($this->Triggers[$event])) {
+                $this->Triggers[$event] = array();
             }
-            $this->triggers[$event][$plugin->Name] =& $plugin->On[$event];
+            $this->Triggers[$event][$plugin->Name] =& $plugin->On[$event];
         }
 
         // Give each plugin a reference to this object.
@@ -60,17 +60,17 @@ class Minion {
 
     public function run (Socket $socket = null) {
         $this->log('Started on ' . date('Y-m-d') . ' at ' . date('H:i:s'), 'ALL');
-        $this->socket = is_null($socket) ? new Socket($this->config->Host, $this->config->Port) : $socket;
+        $this->Socket = is_null($socket) ? new Socket($this->Config->Host, $this->Config->Port) : $socket;
 
         $this->trigger('before-loop');
-        while (!$this->exit) {
+        while (!$this->Exit) {
             $this->trigger('loop-start');
-            if ($this->socket->connect()) {
+            if ($this->Socket->connect()) {
                 $this->trigger('connect');
-                $this->log("Connected to {$this->config->Host}:{$this->config->Port}.", 'ALL');
+                $this->log("Connected to {$this->Config->Host}:{$this->Config->Port}.", 'ALL');
             }
 
-            $data = $this->socket->read();
+            $data = $this->Socket->read();
             $this->trigger('after-read', $data);
 
             if ($data) {
@@ -91,8 +91,8 @@ class Minion {
     }
 
     private function trigger ($event, &$data = null) {
-        if (isset($this->triggers[$event])) {
-            foreach ($this->triggers[$event] as $pluginName => $trigger) {
+        if (isset($this->Triggers[$event])) {
+            foreach ($this->Triggers[$event] as $pluginName => $trigger) {
                 $this->log("Triggering $pluginName:$event.", 'INFO');
                 $trigger(&$data);
             }
@@ -101,7 +101,7 @@ class Minion {
 
     public function send ($message) {
         $this->trigger('before-send', $message);
-        $status = $this->socket->write($message);
+        $status = $this->Socket->write($message);
         $this->log("Sent: $message", 'INFO');
         $this->trigger('after-send', $message);
         return $status;
@@ -117,7 +117,7 @@ class Minion {
 
     public function quit ($message) {
         $this->send("QUIT $message");
-        return $this->exit = true;
+        return $this->Exit = true;
     }
 
     private function parse ($data) {
@@ -145,28 +145,28 @@ class Minion {
 
     public function __destruct () {
         $this->trigger('destruct');
-        foreach ($this->plugins as $plugin) {
+        foreach ($this->Plugins as $plugin) {
             unset($plugin);
         }
         $this->trigger('disconnect');
-        if ($this->socket instanceof Socket) {
-            $this->socket->disconnect();
+        if ($this->Socket instanceof Socket) {
+            $this->Socket->disconnect();
         }
         $this->log('Disconnected.', 'ALL');
-        if (is_resource($this->log)) {
-            fclose($this->log);
+        if (is_resource($this->Log)) {
+            fclose($this->Log);
         }
     }
 
     public function log ($message, $level = 'INFO') {
-        if (!is_resource($this->log)) {
-            $this->log = fopen($this->config->MinionLogFile, 'a');
+        if (!is_resource($this->Log)) {
+            $this->Log = fopen($this->Config->MinionLogFile, 'a');
         }
 
         $levels = array('ALL' => 0, 'ERROR' => 1, 'WARNING' => 2, 'INFO' => 3);
-        $debugLevel = isset($this->config->Debug) ? $this->config->Debug : false;
-        if (isset($levels[$level]) and $this->config->Debug >= $levels[$level]) {
-            return fwrite($this->log, date('Y-m-d H:i:s') . " [$level] $message\n");
+        $debugLevel = isset($this->Config->Debug) ? $this->Config->Debug : false;
+        if (isset($levels[$level]) and $this->Config->Debug >= $levels[$level]) {
+            return fwrite($this->Log, date('Y-m-d H:i:s') . " [$level] $message\n");
         }
     }
 

@@ -13,7 +13,7 @@ class KayakoPlugin extends \Minion\Plugin {
             if ($ticket == 'last') {
                 $condition = 'ORDER BY ticketid DESC LIMIT 1';
             }
-            $statement = $this->Minion->state['DB']->prepare("SELECT ticketid, ticketmaskid, fullname, email, subject, DATE_FORMAT(from_unixtime(dateline), '%Y-%m-%d %H:%i:%s') as created, date_format(from_unixtime(lastactivity), '%Y-%m-%d %H:%i:%s') as last, totalreplies FROM $kdb.swtickets $condition");
+            $statement = $this->Minion->State['DB']->prepare("SELECT ticketid, ticketmaskid, fullname, email, subject, DATE_FORMAT(from_unixtime(dateline), '%Y-%m-%d %H:%i:%s') as created, date_format(from_unixtime(lastactivity), '%Y-%m-%d %H:%i:%s') as last, totalreplies FROM $kdb.swtickets $condition");
             $statement->execute(array($ticket, $ticket));
             $results = $statement->fetchAll();
             if (count($results)) {

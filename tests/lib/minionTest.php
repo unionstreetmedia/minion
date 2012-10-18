@@ -49,9 +49,9 @@ class MinionTest extends \PHPUnit_Framework_TestCase {
         
         // Reflect the object for inspection.
         $minionReflection = new \ReflectionObject($minion);
-        $plugins = $minionReflection->getProperty('plugins');
+        $plugins = $minionReflection->getProperty('Plugins');
         $plugins->setAccessible(true);
-        $triggers = $minionReflection->getProperty('triggers');
+        $triggers = $minionReflection->getProperty('Triggers');
         $triggers->setAccessible(true);
         
         $this->assertEquals($plugins->getValue($minion), array(self::$Plugin));
@@ -67,9 +67,9 @@ class MinionTest extends \PHPUnit_Framework_TestCase {
 
         // Reflect the object for inspection.
         $minionReflection = new \ReflectionObject($minion);
-        $plugins = $minionReflection->getProperty('plugins');
+        $plugins = $minionReflection->getProperty('Plugins');
         $plugins->setAccessible(true);
-        $triggers = $minionReflection->getProperty('triggers');
+        $triggers = $minionReflection->getProperty('Triggers');
         $triggers->setAccessible(true);
         
         $loaded = $plugins->getValue($minion);
@@ -128,7 +128,7 @@ class MinionTest extends \PHPUnit_Framework_TestCase {
      */
     public function testQuit ($minion) {
         $this->assertTrue($minion->quit('bye'));
-        $this->assertTrue($this->getPrivate($minion, 'exit'));
+        $this->assertTrue($this->getPrivate($minion, 'Exit'));
     }
 
     /**
@@ -162,7 +162,7 @@ class MinionTest extends \PHPUnit_Framework_TestCase {
 
     // Helpers
     private function setSocket (&$minion) {
-        $this->setPrivate($minion, 'socket', self::$Socket);
+        $this->setPrivate($minion, 'Socket', self::$Socket);
     }
 
     private function setPrivate (&$minion, $property, $value) {
