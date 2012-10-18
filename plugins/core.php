@@ -19,7 +19,7 @@ return $Core
     $Core->Minion->state['Nickname'] = $Core->conf('Nick');
 })
 
-->on('PING', function (&$data) {
+->on('PING', function (&$data) use ($Core) {
     $Core->Minion->send("PONG {$data['message']}");
 })
 
