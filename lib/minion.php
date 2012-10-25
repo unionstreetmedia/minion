@@ -29,7 +29,7 @@ class Minion {
     }
 
     public function loadPlugin ($pluginName, Array $pluginConfig) {
-        $pluginFile = $this->Config->PluginDirectory . '/' . strtolower($pluginName) . '.php';
+        $pluginFile = $this->Config->PluginDirectory . '/' . $pluginName . '/' . $pluginName . '.php';
         if (file_exists($pluginFile)) {
             $this->addPlugin(include($pluginFile), $pluginConfig);
             return true;
