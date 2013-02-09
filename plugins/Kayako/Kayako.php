@@ -50,7 +50,7 @@ return $Kayako
             foreach ($ticketIDs as $ticketID) {
                 $ticket = $Kayako->getTicket($ticketID);
                 if ($ticket) {
-                    $Kayako->Minion->msg("Ticket {$ticket['ticketmaskid']}: {$ticket['subject']} [{$ticket['fullname']} / {$ticket['email']}] [Created {$ticket['created']}] [Updated {$ticket['last']}] [{$ticket['totalreplies']} replies] http://support.unionstreetmedia.com/staff/?_m=tickets&_a=viewticket&ticketid={$ticket['ticketid']}", $data['arguments'][0]);
+                    $Kayako->Minion->msg("Ticket {$ticket['ticketmaskid']}: {$ticket['subject']} [{$ticket['fullname']} / {$ticket['email']}] [Created {$ticket['created']}] [Updated {$ticket['last']}] [{$ticket['totalreplies']} replies] {$Kayako->conf('URL')}/?_m=tickets&_a=viewticket&ticketid={$ticket['ticketid']}", $data['arguments'][0]);
                 }
             }
         }
