@@ -4,6 +4,33 @@ namespace Minion;
 
 class Config extends ConfigBase {
 
+    public function __construct () {
+        # The IRC server you want to connect to.
+        $this->Host = 'chat.freenode.net';
+
+        # Debug level. (0: ALL, 1: ERROR, 2: WARNING, 3: INFO)
+        $this->Debug = 1;
+        
+        # The password for the IRC server.
+        # $this->PluginConfig['Core']['Password'] = 'yourpasswordhere';
+
+        # Many plugins require a DB to store dynamic settings.
+        $this->PluginConfig['DB'] = array(
+            'DB' => 'MySQL',
+            'DSN' => 'mysql:host=localhost;dbname=minion',
+            'Username' => 'minion',
+            'Password' => 'minion'
+        );
+
+        # The Log plugin can log to the DB or to flat files.
+        $this->PluginConfig['Log'] = array(
+            'TextLog' => true,
+            'TextLogDirectory' => './logs'
+        );
+
+        # See individual plugins for more information on configuration.
+    }
+
 }
 
 ?>
