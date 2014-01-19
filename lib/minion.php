@@ -94,7 +94,7 @@ class Minion {
         if (isset($this->Triggers[$event])) {
             foreach ($this->Triggers[$event] as $pluginName => $trigger) {
                 $this->log("Triggering $pluginName:$event.", 'INFO');
-                $trigger(&$data);
+                $trigger($data);
             }
         }
     }
