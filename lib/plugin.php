@@ -70,7 +70,7 @@ class Plugin {
     }
 
     public function matchCommand ($data, $regexp) {
-        if (preg_match($regexp, $data['message'], $matches)) {
+        if (preg_match_all($regexp, $data['message'], $matches, PREG_SET_ORDER)) {
             return $matches;
         }
         return false;

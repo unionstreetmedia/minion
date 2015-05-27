@@ -64,7 +64,7 @@ class PluginTest extends \PHPUnit_Framework_TestCase {
      */
     public function testMatchCommand () {
         $plugin = new Plugin('A', 'B', 'C');
-        $this->assertEquals($plugin->matchCommand(array('message' => 'foo bar 123 baz'), '/bar/'), array('bar'));
+        $this->assertEquals($plugin->matchCommand(array('message' => 'foo bar 123 baz'), '/bar/'), array(array('bar')));
         $this->assertFalse($plugin->matchCommand(array('message' => 'foo bar 123 baz'), '/quux/'));
     }
 
