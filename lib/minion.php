@@ -110,6 +110,10 @@ class Minion {
     public function msg ($message, $target) {
         return $this->send("PRIVMSG $target :$message");
     }
+    
+    public function cmd($command, $target) {
+        return $this->send("$command $target");
+    }
 
     public function ctcp ($message, $target) {
         return $this->msg("\1$message\1", $target);
